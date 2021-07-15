@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { APIResponse, Game } from 'src/app/models';
 import { HttpService } from 'src/app/services/http.service';
 
@@ -12,6 +13,7 @@ import { HttpService } from 'src/app/services/http.service';
         <mat-select
           panelClass="sort-select"
           [(ngModel)]="sort"
+          (selectionChange)="searchGames(sort)"
         >
           <mat-option value="name">Name</mat-option>
           <mat-option value="-released">Released</mat-option>
@@ -26,7 +28,7 @@ import { HttpService } from 'src/app/services/http.service';
 
     <div class="games">
       <ng-container *ngFor="let game of games">
-        <div class="game">
+        <div class="game" (click)="openGameDetails(game.id)">
           <div class="game-thumb-container">
             <img 
               *ngIf="game.background_image" 
@@ -137,17 +139,20 @@ import { HttpService } from 'src/app/services/http.service';
     }
   `]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   public sort: string = '';
   public games: Array<Game> = [];
+  private routeSub: Subscription = new Subscription();
+  private gameSub: Subscription = new Subscription();
 
   constructor(
     private httpService: HttpService, 
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
-    this.activatedRoute.params.subscribe((params: Params) => {
+    this.routeSub = this.activatedRoute.params.subscribe((params: Params) => {
       if (params['game-search']) {
         this.searchGames('metacrit', params['game-search']);
       } else {
@@ -157,9 +162,22 @@ export class HomeComponent implements OnInit {
   }
 
   searchGames(sort: string, search?: string) {
-    this.httpService.getGamesList(sort, search).subscribe((gameList: APIResponse<Game>) => {
+    this.gameSub = this.httpService.getGamesList(sort, search).subscribe((gameList: APIResponse<Game>) => {
       this.games = gameList.results;
       console.log(gameList);
     })
+  }
+
+  openGameDetails(id: string) {
+    this.router.navigate(['details', id]);
+  }
+
+  ngOnDestroy() {
+    if (this.gameSub) {
+      this.gameSub.unsubscribe()
+    }
+    if (this.routeSub) {
+      this.routeSub.unsubscribe();
+    }
   }
 }
