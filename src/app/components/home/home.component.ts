@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
+import { APIResponse, Game } from 'src/app/models';
+import { HttpService } from 'src/app/services/http.service';
 
 @Component({
   selector: 'app-home',
@@ -22,16 +25,28 @@ import { Component, OnInit } from '@angular/core';
     </div>
 
     <div class="games">
-      <div class="game">
-        <div class="game-thumb-container">
-          <img class="game-thumbnail" src="" alt="thumbnail"/>
+      <ng-container *ngFor="let game of games">
+        <div class="game">
+          <div class="game-thumb-container">
+            <img 
+              *ngIf="game.background_image" 
+              class="game-thumbnail" 
+              [src]="game.background_image" 
+              alt="thumbnail"
+            />
+          </div>
+          <div class="game-description">
+            <p class="game-name">{{ game.name }}</p>
+            <!-- <div class="game-platforms">
+              <img
+                *ngFor="let gamePlatform of game.parent_platforms" 
+                class="game-platform" 
+                [src]="gamePlatform.platform.name" 
+                alt="slug"/>
+            </div> -->
+          </div>
         </div>
-        <div class="game-description">
-          <p class="game-name">Name</p>
-          <div class="game-platforms">
-            <img class="game-platform" src="" alt="slug"/>
-        </div>
-      </div>
+      </ng-container>
     </div>
   `,
   styles: [`
@@ -124,9 +139,27 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
   public sort: string = '';
-  constructor() { }
+  public games: Array<Game> = [];
+
+  constructor(
+    private httpService: HttpService, 
+    private activatedRoute: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
+    this.activatedRoute.params.subscribe((params: Params) => {
+      if (params['game-search']) {
+        this.searchGames('metacrit', params['game-search']);
+      } else {
+        this.searchGames('metacrit');
+      }
+    });
   }
 
+  searchGames(sort: string, search?: string) {
+    this.httpService.getGamesList(sort, search).subscribe((gameList: APIResponse<Game>) => {
+      this.games = gameList.results;
+      console.log(gameList);
+    })
+  }
 }
