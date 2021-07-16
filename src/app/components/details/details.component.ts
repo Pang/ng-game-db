@@ -48,6 +48,7 @@ import { HttpService } from 'src/app/services/http.service';
               </a>
             </div>
           </div>
+          <app-game-tabs [game]="game"></app-game-tabs>
         </div>
       </div>
     </div>
@@ -175,5 +176,4 @@ export class DetailsComponent implements OnInit, OnDestroy {
       this.routeSub.unsubscribe();
     }
   }
-
 }
