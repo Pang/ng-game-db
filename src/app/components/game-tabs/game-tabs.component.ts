@@ -4,7 +4,7 @@ import { Game } from 'src/app/models';
 @Component({
   selector: 'app-game-tabs',
   template: `
-    <div class="game-tabs">
+    <div class="game-tabs" *ngIf="game != undefined; else isLoading">
       <mat-tab-group mat-align-tabs="start" backgroundColor="primary">
         <mat-tab label="About">
           <p *ngIf="game?.parent_platforms?.length" class="game-tabs-par">
@@ -57,6 +57,7 @@ import { Game } from 'src/app/models';
         </mat-tab>
       </mat-tab-group>
     </div>
+    <ng-template #isLoading><span class="loading">Loading...</span></ng-template>
   `,
   styles: [`
     .game {
@@ -111,14 +112,14 @@ import { Game } from 'src/app/models';
         margin: 20px 0;
       }
     }
+    .loading {
+      color: white;
+      font-size: 36px;
+    }
   `]
 })
-export class GameTabsComponent implements OnInit {
+export class GameTabsComponent{
   @Input() game: Game;
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  constructor() {}
 }

@@ -26,7 +26,7 @@ import { HttpService } from 'src/app/services/http.service';
       </mat-form-field>
     </div>
 
-    <div class="games">
+    <div class="games" *ngIf="games.length > 0; else isLoading">
       <ng-container *ngFor="let game of games">
         <div class="game" (click)="openGameDetails(game.id)">
           <div class="game-thumb-container">
@@ -39,17 +39,11 @@ import { HttpService } from 'src/app/services/http.service';
           </div>
           <div class="game-description">
             <p class="game-name">{{ game.name }}</p>
-            <!-- <div class="game-platforms">
-              <img
-                *ngFor="let gamePlatform of game.parent_platforms" 
-                class="game-platform" 
-                [src]="gamePlatform.platform.name" 
-                alt="slug"/>
-            </div> -->
           </div>
         </div>
       </ng-container>
     </div>
+    <ng-template #isLoading><h2 class="loading">Loading...</h2></ng-template>
   `,
   styles: [`
     .filters {
@@ -136,6 +130,11 @@ import { HttpService } from 'src/app/services/http.service';
       &-platform {
         width: 20px;
       }
+    }
+    .loading {
+      color: white;
+      font-size: 36px;
+      text-align: center;
     }
   `]
 })
